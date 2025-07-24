@@ -21,21 +21,6 @@ jobs:
       run: |
         docker save ecommerce-api > ecommerce-api.tar
 
-    - name: Decode SSH key
-      run: |
-      echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > folat.pem
-      chmod 400 folat.pem
-
-    - name: Upload files to EC2
-      uses: appleboy/scp-action@v0.1.7
-      with:
-      host: ${{ secrets.EC2_HOST }}
-      username: ubuntu
-      key: folat.pem
-      port: 22
-      source: "./build"
-      target: "/home/ubuntu/app"
-
 
 
     - name: Upload Image to EC2
