@@ -1,4 +1,4 @@
-name: Deploy to AWS EC2
+name: Deploy Backend to AWS EC2
 
 on:
   push:
@@ -13,32 +13,32 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Build Docker Image
+    - name: Build Backend Docker Image
       run: |
-        docker build -t ecommerce-app .
+        docker build -t ecommerce-api ./api
 
-    - name: Save Docker Image to TAR file
+    - name: Save Backend Docker Image
       run: |
-        docker save ecommerce-app > ecommerce-app.tar
+        docker save ecommerce-api > ecommerce-api.tar
 
-    - name: Upload Docker Image to EC2
+    - name: Upload Image to EC2
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "ecommerce-app.tar"
+        source: "ecommerce-api.tar"
         target: "/home/${{ secrets.EC2_USER }}/"
 
-    - name: SSH into EC2 and Run Container
+    - name: Deploy Backend on EC2
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker load < ecommerce-app.tar
-          docker stop ecommerce-app || true
-          docker rm ecommerce-app || true
-          docker run -d --name ecommerce-app -p 80:3000 ecommerce-app
+          docker load < ecommerce-api.tar
+          docker stop ecommerce-api || true
+          docker rm ecommerce-api || true
+          docker run -d --name ecommerce-api -p 80:3000 ecommerce-api
 
